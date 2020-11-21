@@ -33,6 +33,7 @@ public struct Block
     int currCost;
 
     GameObject costText;
+    bool buyable; //can be bought this turn
 
     public void initBlock(Vector3 position, bool upWall, bool downWall, bool leftWall, bool rightWall, float width, 
         GameObject quadobj,GameObject fogobj, GameObject cText)
@@ -128,6 +129,8 @@ public struct Block
                 asNeighborNotBuyableOn();
                 break;
         }
+
+        setMatColorBasedOnOwner();
     }
 
     public void highlightOff()
@@ -159,6 +162,21 @@ public struct Block
         return currCost;
     }
 
+    public bool isBuyable() { return buyable;  }
 
+    public void setBuyable(bool b) { buyable = b; }
 
+    public void setMatColor(Color c)
+    {
+        quad.GetComponent<MeshRenderer>().material.color = c;
+    }
+
+    public void setMatColorBasedOnOwner()
+    {
+        if (owner != -1 && owner < TurnController.playerColors.Length)
+        {
+            quad.GetComponent<MeshRenderer>().material.color = TurnController.playerColors[owner];
+            Debug.Log("setting col to "+owner);
+        }
+    }
 }

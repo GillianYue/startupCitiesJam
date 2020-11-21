@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 //listens for player input and has access to all players
 public class PlayerAction : MonoBehaviour
@@ -9,7 +10,7 @@ public class PlayerAction : MonoBehaviour
     public GameObject playerPrefab;
 
     public TurnController turnController;
-    public int numPlayers = 2;
+    public int numPlayers = 4;
 
     private bool currTurnToggleStatus, //true is earn money, false is pay debt
     currTurnDone = true;
@@ -19,9 +20,19 @@ public class PlayerAction : MonoBehaviour
     public BlockController blockController;
     public Camera mainCamera;
 
-    public UIManager uiManager;
-
     public bool ready;
+
+    public GameObject SendMoneyPannel;
+
+    public GameObject[] PlayerNeighbors;
+
+    Player currPlayer;
+    
+    string SendMoneyInput;
+    int sendPlayerId;
+    Text sendPlacementHolder;
+
+    public UIManager uiManager;
 
     void Start()
     {
@@ -54,6 +65,8 @@ public class PlayerAction : MonoBehaviour
             System.Tuple<int, int> tup = new System.Tuple<int, int>(rr[p], rc[p]);
             players[p].myBlocks.Add(tup); //a number tuple keeping track of data only, not actual blocks
             players[p].setStartingBlock(rr[p], rc[p]);
+
+            turnController.blockList[rr[p], rc[p]].setMatColor(TurnController.playerColors[p]);
         }
 
 
@@ -62,7 +75,7 @@ public class PlayerAction : MonoBehaviour
             blocks[players[p].myBlocks[0].Item1, players[p].myBlocks[0].Item2].setOwner(p);
         }
 
-        print("players instantiated");
+        print(numPlayers+" players instantiated");
 
         yield return new WaitUntil(() => players[numPlayers - 1]);
         ready = true;
@@ -78,16 +91,22 @@ public class PlayerAction : MonoBehaviour
                 if (currHoverBlock.Item1 != -1) turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].highLightHoverOff();
                 currHoverBlock = hov;
                 if (hov.Item1 != -1) {
-                    uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost(), 5);
+                    uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost(), 9);
                     turnController.blockList[hov.Item1, hov.Item2].SelectOn();
                         }
             }
 
 
-            if (Input.GetMouseButtonDown(0)) //buy 
+            if ( Input.GetMouseButtonDown(0) && currHoverBlock.Item1 != -1 &&
+                turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].isBuyable()) //buy 
             {
-                players[turnController.getCurrTurnPlayer()].unlockNewBlock(turnController.blockList, currHoverBlock.Item1,
-                    currHoverBlock.Item2, turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].getCurrCost());
+                if (players[turnController.getCurrTurnPlayer()].unlockNewBlock(turnController.blockList, currHoverBlock.Item1,
+                    currHoverBlock.Item2, turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].getCurrCost()))
+                {
+                    turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].highlightOff();
+                    turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].setBuyable(false);
+                    turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].setMatColorBasedOnOwner();
+                }
                 refreshCost();
                 uiManager.displayDialogueForSeconds("Purchased a block!", 5);
             }
@@ -99,7 +118,7 @@ public class PlayerAction : MonoBehaviour
         currTurnToggleStatus = true;
         currTurnDone = false;
 
-        Player currPlayer = players[playerIndex];
+        currPlayer = players[playerIndex];
 
         System.Tuple<System.Tuple<bool, bool, bool, bool>, 
             List<System.Tuple<int, int>>>  res = blockController.getNeighbors(players[playerIndex].myBlocks);
@@ -121,10 +140,12 @@ public class PlayerAction : MonoBehaviour
             if (c > currPlayer.getCoins())
             {
                 turnController.blockList[n.Item1, n.Item2].asNeighborNotBuyableOn();
+                turnController.blockList[n.Item1, n.Item2].setBuyable(false);
             }
             else
             {
                 turnController.blockList[n.Item1, n.Item2].asNeighborBuyableOn();
+                turnController.blockList[n.Item1, n.Item2].setBuyable(true);
             }
         }
 
@@ -136,7 +157,48 @@ public class PlayerAction : MonoBehaviour
 
     public void sendMoneyButton()
     {
+        SendMoneyPannel.SetActive(true);
+        for(int i = 0; i < currPlayer.inContact.Length; i++)
+        {
+            if (currPlayer.inContact[i])
+            {
+                PlayerNeighbors[i].SetActive(true);
+            }
+        }
 
+    }
+
+    public void SendMoneyString(InputField thisInputField)
+    {
+        SendMoneyInput = thisInputField.text;
+    }
+
+    public void setSendId(int playerId)
+    {
+        sendPlayerId = playerId;
+    }
+
+    public void setPlaceHolder(Text placeHolder)
+    {
+        sendPlacementHolder = placeHolder;
+    }
+
+
+    public void sendMoneyTo()
+    {
+        int money = (int)float.Parse(SendMoneyInput);
+        if (money > currPlayer.getCoins())
+        {
+            sendPlacementHolder.text = "No enough money!";
+            return;
+        }
+        currPlayer.setCoins(currPlayer.getCoins() - money);
+        players[sendPlayerId].setCoins(players[sendPlayerId].getCoins() + money);
+    }
+
+    public void closeSendMoneyButton()
+    {
+        SendMoneyPannel.SetActive(false);
     }
 
 
@@ -146,6 +208,7 @@ public class PlayerAction : MonoBehaviour
         foreach(Block b in turnController.blockList)
         {
             b.highlightOff();
+            b.setBuyable(false);
         }
         currTurnDone = true;
     }
@@ -191,10 +254,12 @@ public class PlayerAction : MonoBehaviour
             if (c > currPlayer.getCoins())
             {
                 turnController.blockList[n.Item1, n.Item2].asNeighborNotBuyableOn();
+                turnController.blockList[n.Item1, n.Item2].setBuyable(false);
             }
             else
             {
                 turnController.blockList[n.Item1, n.Item2].asNeighborBuyableOn();
+                turnController.blockList[n.Item1, n.Item2].setBuyable(true);
             }
         }
     }

@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour
 
     public Text dialogueText;
 
+    public Animator[] profiles;
 
     void Start()
     {
@@ -54,7 +55,8 @@ public class UIManager : MonoBehaviour
     }
     public void displayDialogueForSeconds(string content, float s)
     {
-        displayForSeconds(dialogueText, s, content);
+        StopAllCoroutines();
+        StartCoroutine(displayForSeconds(dialogueText, s, content));
     }
 
     IEnumerator displayForSeconds(Text t, float s, string content)

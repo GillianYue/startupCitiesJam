@@ -15,6 +15,9 @@ public class TurnController : MonoBehaviour
     public int globalDebt = 100;
     public UIManager uiManager;
 
+    public static Color[] playerColors = {new Color(255/255f,242/255f,61/255f), 
+        new Color(9/255f, 161/255f,0), new Color(255/255f, 64/255f,83/255f), new Color(0,128/255f,255/255f) }; 
+
     void Start()
     {
         StartCoroutine(initializeEverything());
@@ -36,6 +39,9 @@ public class TurnController : MonoBehaviour
         {
             int playerIndex = turn % playerAction.numPlayers;
             cameraMove.setDestination(playerAction.players[playerIndex].myCenter);
+            uiManager.profiles[playerIndex].Play("playerProfile");
+            if (turn != 0) uiManager.profiles[(turn - 1) % playerAction.numPlayers].Play("playerProfileShrink");
+            uiManager.displayDialogueForSeconds("Player " + playerIndex + "'s turn", 8);
             yield return playerAction.executeTurn(playerIndex);
            turn++;
            

@@ -44,6 +44,9 @@ public class BlockController : MonoBehaviour
         {
             int row = myBlocks[i].Item1;
             int col = myBlocks[i].Item2;
+
+            print("my coord: "+row+","+col+" up: " + blockList[row, col].getUp() + " down: " + blockList[row, col].getDown() +
+                " left: " + blockList[row, col].getLeft() + " right: " + blockList[row, col].getRight());
             if (!blockList[row, col].getUp())
             {
                 if (blockList[row + 1, col].getOwner() == -1)

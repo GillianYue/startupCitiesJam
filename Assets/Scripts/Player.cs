@@ -6,7 +6,7 @@ public class Player : MonoBehaviour
 {
 
     public Vector3 myCenter; //position for camera to locate this player's control view
-    public List<System.Tuple<int, int>> myBlocks; //spaces that I currently own; format is (row (z; item1), col(z; item2))
+    public List<System.Tuple<int, int>> myBlocks; //spaces that I currently own; format is (num of col (x; item1), num of row(z; item2))
     public int coins;
     public int playerIndex;
     System.Tuple<int,int> startingBlock;

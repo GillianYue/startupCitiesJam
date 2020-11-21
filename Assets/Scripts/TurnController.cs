@@ -12,6 +12,9 @@ public class TurnController : MonoBehaviour
     public MazeGeneration mazeGen;
     public Block[,] blockList;
 
+    public int globalDebt = 100;
+    public UIManager uiManager;
+
     void Start()
     {
         StartCoroutine(initializeEverything());

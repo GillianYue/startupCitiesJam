@@ -9,7 +9,7 @@ public class PlayerAction : MonoBehaviour
     public GameObject playerPrefab;
 
     public TurnController turnController;
-    public int numPlayers = 2;
+    public int numPlayers = 1;
 
     private bool currTurnToggleStatus, //true is earn money, false is pay debt
     currTurnDone = true;
@@ -97,7 +97,10 @@ public class PlayerAction : MonoBehaviour
 
         foreach(System.Tuple<int, int> n in neighbors)
         {
+
+            
             int c = blockController.getBlockCost(n, currPlayer.returnStartingBlock(), currPlayer.myBlocks.Count);
+            print("neighbor " + n.Item1 + ", " + n.Item2 + ": " + c);
 
             if (c > currPlayer.coins)
             {

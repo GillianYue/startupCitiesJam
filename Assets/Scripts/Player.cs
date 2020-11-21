@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
 
     public Vector3 myCenter; //position for camera to locate this player's control view
     public List<System.Tuple<int, int>> myBlocks; //spaces that I currently own; format is (num of col (x; item1), num of row(z; item2))
-    public int coins;
+    private int coins = 10;
     public int playerIndex;
     System.Tuple<int,int> startingBlock;
 
@@ -46,7 +46,7 @@ public class Player : MonoBehaviour
     public bool unlockNewBlock(Block[,] blocks, int row, int col, int cost)
     {
         if(blocks[row, col].getOwner() == -1 && coins >= cost) {
-
+            print(playerIndex + " unlocked new block at "+row+" "+col);
             coins -= cost;
             blocks[row, col].setOwner(playerIndex);
             System.Tuple<int, int> tup = new System.Tuple<int, int>(row, col);
@@ -74,5 +74,15 @@ public class Player : MonoBehaviour
     public System.Tuple<int, int> returnStartingBlock()
     {
         return startingBlock;
+    }
+
+    public void setCoins(int c)
+    {
+        coins = c;
+    }
+
+    public int getCoins()
+    {
+        return coins;
     }
 }

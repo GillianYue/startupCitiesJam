@@ -15,9 +15,14 @@ public class MazeGeneration : MonoBehaviour
 
     public GameObject fogPrefab;
 
+    public GameObject costTextPrefab;
+
     public float blockSize;
 
     public float fogHeight;
+
+   
+
 
     //public float clearPara;
 
@@ -63,6 +68,7 @@ public class MazeGeneration : MonoBehaviour
                     continue;
                 }
                 GameObject wallCol = Instantiate(wall);
+                wallCol.name = "colWall" + item1.ToString() + item2.ToString();
                 wallCol.transform.position = new Vector3(i, 0.5f, j);
                 wallCol.transform.localScale = new Vector3(0.1f, 1+Mathf.PerlinNoise(i, j), 1);
                 wallCol.transform.parent = nullParent.transform;
@@ -86,6 +92,7 @@ public class MazeGeneration : MonoBehaviour
                     continue;
                 } 
                 GameObject wallRow = Instantiate(wall);
+                wallRow.name = "rowWall" + item1.ToString() + item2.ToString();
                 wallRow.transform.position = new Vector3(j, 0.5f, i);
                 wallRow.transform.localScale = new Vector3(0.1f, 1+Mathf.PerlinNoise(j, i), 1);
                 wallRow.transform.rotation = Quaternion.Euler(0, 90, 0);
@@ -103,17 +110,22 @@ public class MazeGeneration : MonoBehaviour
             {
                 Vector3 position = new Vector3(wallSize/2+allowedArea.xMin+wallSize*i,0.5f,allowedArea.yMin+wallSize/2+wallSize*j);
                 GameObject quad = Instantiate(quadPrefab);
+                quad.name = "quad"+i.ToString()+j.ToString();
                 quad.transform.parent = nullParent.transform;
                 quad.transform.position = position;
 
                 GameObject fog = Instantiate(fogPrefab);
                 fog.transform.parent = nullParent.transform;
-                fog.transform.position = new Vector3(wallSize / 2 + allowedArea.xMin + wallSize * i, fogHeight, allowedArea.yMin + wallSize / 2 + wallSize * j);
+                fog.transform.position = new Vector3(position.x, fogHeight, position.z);
+
+                GameObject ctxt = Instantiate(costTextPrefab);
+                ctxt.transform.parent = nullParent.transform.Find("Canvas");
+                ctxt.transform.position = position + new Vector3(0, fogHeight, 0);
 
                 blockList[i, j].initBlock(position,
-                    rowWalls[i + 1, j].Item1, rowWalls[i, j].Item1, colWalls[j, i].Item1, colWalls[j + 1, i].Item1,
+                    rowWalls[j + 1, i].Item1, rowWalls[j, i].Item1, colWalls[i, j].Item1, colWalls[i + 1, j].Item1,
                     wallSize,
-                    quad,fog);
+                    quad,fog, ctxt);
                 
             }
         }

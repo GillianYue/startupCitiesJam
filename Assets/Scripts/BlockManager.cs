@@ -1,6 +1,14 @@
 ﻿
 using UnityEngine;
 
+/*                 [i j+1]
+ *                 (j+1 i)
+ *  [i-1 j]  (i j)  [i j]   (i+1 j)  [i+1 j] 
+ *                  (j i)
+ *                 [i j-1]
+ */
+using UnityEngine.UI;
+
 public struct Block
 {
     Vector3 pos;
@@ -20,10 +28,14 @@ public struct Block
     GameObject fog;
     bool fogOn;
 
-    int highlightType; //0 is green, 1 is red
-    
 
-    public void initBlock(Vector3 position, bool upWall, bool downWall, bool leftWall, bool rightWall, float width, GameObject quadobj,GameObject fogobj)
+    int highlightType; //0 is green, 1 is red
+    int currCost;
+
+    GameObject costText;
+
+    public void initBlock(Vector3 position, bool upWall, bool downWall, bool leftWall, bool rightWall, float width, 
+        GameObject quadobj,GameObject fogobj, GameObject cText)
     {
         pos = new Vector3(position.x, position.y, position.z);
         up = upWall;
@@ -43,6 +55,7 @@ public struct Block
         fogOn = true;
 
         highlightType = -1; //none
+        costText = cText;
     }
 
     public Vector3 getPos()
@@ -97,6 +110,7 @@ public struct Block
         {
             quad.GetComponent<HighlightableObject>().ConstantOn(Color.red);
             highlightType = 1;
+            costText.SetActive(true);
         }
     }
     public void highLightHoverOff()
@@ -120,12 +134,14 @@ public struct Block
     {
         quad.GetComponent<HighlightableObject>().ConstantOff();
         highlightType = -1;
+        costText.SetActive(false);
     }
 
     public void asNeighborBuyableOn()
     {
         quad.GetComponent<HighlightableObject>().ConstantOn(Color.green);
         highlightType = 0;
+        costText.SetActive(true);
     }
 
     public void SelectOn()
@@ -133,6 +149,16 @@ public struct Block
         quad.GetComponent<HighlightableObject>().ConstantOn(Color.yellow);
     }
 
-    
+    public void setCurrCost(int c)
+    {
+        currCost = c;
+    }
+
+    public int getCurrCost()
+    {
+        return currCost;
+    }
+
+
 
 }

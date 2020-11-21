@@ -44,18 +44,15 @@ public class BlockController : MonoBehaviour
         {
             int row = myBlocks[i].Item1;
             int col = myBlocks[i].Item2;
-
-            print("my coord: "+row+","+col+" up: " + blockList[row, col].getUp() + " down: " + blockList[row, col].getDown() +
-                " left: " + blockList[row, col].getLeft() + " right: " + blockList[row, col].getRight());
             if (!blockList[row, col].getUp())
             {
-                if (blockList[row + 1, col].getOwner() == -1)
+                if (blockList[row , col+1].getOwner() == -1)
                 {
-                    outPut.Add(new Tuple<int, int>(row + 1, col));
+                    outPut.Add(new Tuple<int, int>(row , col+1));
                 }
                 else
                 {
-                    switch(blockList[row + 1, col].getOwner())
+                    switch(blockList[row, col+1].getOwner())
                     {
                         case 0:
                             player0 = true;
@@ -73,31 +70,6 @@ public class BlockController : MonoBehaviour
                 }
             }
             if (!blockList[row, col].getDown())
-            {
-                if (blockList[row - 1, col].getOwner() == -1)
-                {
-                    outPut.Add(new Tuple<int, int>(row - 1, col));
-                }
-                else
-                {
-                    switch (blockList[row - 1, col].getOwner())
-                    {
-                        case 0:
-                            player0 = true;
-                            break;
-                        case 1:
-                            player1 = true;
-                            break;
-                        case 2:
-                            player2 = true;
-                            break;
-                        case 3:
-                            player3 = true;
-                            break;
-                    }
-                }
-            }
-            if (!blockList[row, col].getLeft())
             {
                 if (blockList[row , col-1].getOwner() == -1)
                 {
@@ -122,15 +94,40 @@ public class BlockController : MonoBehaviour
                     }
                 }
             }
-            if (!blockList[row, col].getRight())
+            if (!blockList[row, col].getLeft())
             {
-                if (blockList[row, col + 1].getOwner() == -1)
+                if (blockList[row-1 , col].getOwner() == -1)
                 {
-                    outPut.Add(new Tuple<int, int>(row, col + 1));
+                    outPut.Add(new Tuple<int, int>(row-1 , col));
                 }
                 else
                 {
-                    switch (blockList[row, col + 1].getOwner())
+                    switch (blockList[row-1 , col].getOwner())
+                    {
+                        case 0:
+                            player0 = true;
+                            break;
+                        case 1:
+                            player1 = true;
+                            break;
+                        case 2:
+                            player2 = true;
+                            break;
+                        case 3:
+                            player3 = true;
+                            break;
+                    }
+                }
+            }
+            if (!blockList[row, col].getRight())
+            {
+                if (blockList[row+1, col ].getOwner() == -1)
+                {
+                    outPut.Add(new Tuple<int, int>(row+1, col ));
+                }
+                else
+                {
+                    switch (blockList[row+1, col ].getOwner())
                     {
                         case 0:
                             player0 = true;

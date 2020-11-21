@@ -9,7 +9,7 @@ public class PlayerAction : MonoBehaviour
     public GameObject playerPrefab;
 
     public TurnController turnController;
-    public int numPlayers = 1;
+    public int numPlayers = 2;
 
     private bool currTurnToggleStatus, //true is earn money, false is pay debt
     currTurnDone = true;
@@ -18,6 +18,8 @@ public class PlayerAction : MonoBehaviour
 
     public BlockController blockController;
     public Camera mainCamera;
+
+    public bool ready;
 
     void Start()
     {
@@ -46,7 +48,7 @@ public class PlayerAction : MonoBehaviour
             players[p] = ply;
             players[p].playerIndex = p;
             yield return new WaitUntil(() => ply.myBlocks != null);
-            //            print(rr[p] + " " + rc[p] + " " + p + " " + numCols + " " + numRows + " " +players[p].myBlocks.Count);
+
             System.Tuple<int, int> tup = new System.Tuple<int, int>(rr[p], rc[p]);
             players[p].myBlocks.Add(tup); //a number tuple keeping track of data only, not actual blocks
             players[p].setStartingBlock(rr[p], rc[p]);
@@ -58,7 +60,10 @@ public class PlayerAction : MonoBehaviour
             blocks[players[p].myBlocks[0].Item1, players[p].myBlocks[0].Item2].setOwner(p);
         }
 
-       // currTurnDone = false;
+        print("players instantiated");
+
+        yield return new WaitUntil(() => players[numPlayers - 1]);
+        ready = true;
     }
 
     void Update()
@@ -74,6 +79,15 @@ public class PlayerAction : MonoBehaviour
 
                     turnController.blockList[hov.Item1, hov.Item2].SelectOn();
                         }
+            }
+
+
+            if (Input.GetMouseButtonDown(0)) //buy 
+            {
+                players[turnController.getCurrTurnPlayer()].unlockNewBlock(turnController.blockList, currHoverBlock.Item1,
+                    currHoverBlock.Item2, turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].getCurrCost());
+                refreshCost();
+                
             }
         }
     }
@@ -100,9 +114,9 @@ public class PlayerAction : MonoBehaviour
 
             
             int c = blockController.getBlockCost(n, currPlayer.returnStartingBlock(), currPlayer.myBlocks.Count);
-            print("neighbor " + n.Item1 + ", " + n.Item2 + ": " + c);
+            turnController.blockList[n.Item1, n.Item2].setCurrCost(c);
 
-            if (c > currPlayer.coins)
+            if (c > currPlayer.getCoins())
             {
                 turnController.blockList[n.Item1, n.Item2].asNeighborNotBuyableOn();
             }
@@ -123,12 +137,6 @@ public class PlayerAction : MonoBehaviour
 
     }
 
-    public void togglePayAndEarnButton()
-    {
-        currTurnToggleStatus = !currTurnToggleStatus;
-        //update visual 
-
-    }
 
     public void endTurnButton()
     {
@@ -140,28 +148,54 @@ public class PlayerAction : MonoBehaviour
         currTurnDone = true;
     }
 
-    //button event
-    public void clickOnBuyableBlockButton()
+
+    public (int, int) getBlockByMousePosition()
     {
-        int r = 0, c = 0, cost; //TODO
-        if (players[turnController.getCurrTurnPlayer()].unlockNewBlock(turnController.blockList, r, c, 0))//TODO cost function
-        {
-            //make visual changes
-        }
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (!Physics.Raycast(ray, out hit)) return (-1, -1);
+        //Debug.Log(hit.collider.gameObject.transform.position);
+        Vector3 pos = hit.collider.gameObject.transform.position;
 
-    }
-
-
-    public (int,int) getBlockByMousePosition()
-    {
-        Vector3 temp = Input.mousePosition;
-        temp.z = mainCamera.transform.position.y;
-        Vector3 pos = mainCamera.ScreenToWorldPoint(temp);
 
         System.Tuple<int, int> tup = blockController.getBlock(pos.x, pos.z);
-        //print("curr hover block: " + tup + " " + pos);
+
         int r = tup.Item1, c = tup.Item2;
         return (r, c);
     }
+
+    public void refreshCost()
+    {
+
+        Player currPlayer = players[turnController.getCurrTurnPlayer()];
+
+        System.Tuple<System.Tuple<bool, bool, bool, bool>,
+            List<System.Tuple<int, int>>> res = blockController.getNeighbors(currPlayer.myBlocks);
+
+        System.Tuple<bool, bool, bool, bool> bs = res.Item1;
+        bool b1 = bs.Item1, b2 = bs.Item2, b3 = bs.Item3, b4 = bs.Item4;
+        List<System.Tuple<int, int>> neighbors = res.Item2;
+
+        currPlayer.inContact[0] = b1; currPlayer.inContact[1] = b2;
+        currPlayer.inContact[2] = b3; currPlayer.inContact[3] = b4;
+
+        foreach (System.Tuple<int, int> n in neighbors)
+        {
+
+
+            int c = blockController.getBlockCost(n, currPlayer.returnStartingBlock(), currPlayer.myBlocks.Count);
+            turnController.blockList[n.Item1, n.Item2].setCurrCost(c);
+
+            if (c > currPlayer.getCoins())
+            {
+                turnController.blockList[n.Item1, n.Item2].asNeighborNotBuyableOn();
+            }
+            else
+            {
+                turnController.blockList[n.Item1, n.Item2].asNeighborBuyableOn();
+            }
+        }
+    }
+
 
 }

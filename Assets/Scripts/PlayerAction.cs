@@ -19,6 +19,8 @@ public class PlayerAction : MonoBehaviour
     public BlockController blockController;
     public Camera mainCamera;
 
+    public UIManager uiManager;
+
     public bool ready;
 
     void Start()
@@ -76,7 +78,7 @@ public class PlayerAction : MonoBehaviour
                 if (currHoverBlock.Item1 != -1) turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].highLightHoverOff();
                 currHoverBlock = hov;
                 if (hov.Item1 != -1) {
-
+                    uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost(), 5);
                     turnController.blockList[hov.Item1, hov.Item2].SelectOn();
                         }
             }
@@ -87,7 +89,7 @@ public class PlayerAction : MonoBehaviour
                 players[turnController.getCurrTurnPlayer()].unlockNewBlock(turnController.blockList, currHoverBlock.Item1,
                     currHoverBlock.Item2, turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].getCurrCost());
                 refreshCost();
-                
+                uiManager.displayDialogueForSeconds("Purchased a block!", 5);
             }
         }
     }

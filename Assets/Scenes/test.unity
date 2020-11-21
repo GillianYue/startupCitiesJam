@@ -250,6 +250,7 @@ MonoBehaviour:
   numPlayers: 4
   blockController: {fileID: 1993848345}
   mainCamera: {fileID: 963194227}
+  uiManager: {fileID: 157975065}
   ready: 0
 --- !u!114 &157975065
 MonoBehaviour:
@@ -272,6 +273,7 @@ MonoBehaviour:
   - {fileID: 2015464218}
   - {fileID: 906229104}
   - {fileID: 261939875}
+  dialogueText: {fileID: 0}
 --- !u!1 &220990834
 GameObject:
   m_ObjectHideFlags: 0

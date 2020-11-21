@@ -46,7 +46,7 @@ public class Player : MonoBehaviour
     public bool unlockNewBlock(Block[,] blocks, int row, int col, int cost)
     {
         if(blocks[row, col].getOwner() == -1 && coins >= cost) {
-            print(playerIndex + " unlocked new block at "+row+" "+col);
+            print("player "+playerIndex + " unlocked new block at "+row+" "+col);
             coins -= cost;
             blocks[row, col].setOwner(playerIndex);
             System.Tuple<int, int> tup = new System.Tuple<int, int>(row, col);

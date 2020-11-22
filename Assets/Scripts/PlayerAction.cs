@@ -127,8 +127,19 @@ public class PlayerAction : MonoBehaviour
         bool b1 = bs.Item1, b2 = bs.Item2, b3 = bs.Item3, b4 = bs.Item4;
         List<System.Tuple<int, int>> neighbors = res.Item2;
 
-        currPlayer.inContact[0] = b1; currPlayer.inContact[1] = b2;
-        currPlayer.inContact[2] = b3; currPlayer.inContact[3] = b4;
+        bool[] ct = currPlayer.inContact;
+
+        if (playerIndex != 0 && ct[0] != b1) uiManager.displayDialogueForSeconds("Joined with player 0! ", 8);
+        ct[0] = b1;
+
+        if (playerIndex != 1 && ct[1] != b2) uiManager.displayDialogueForSeconds("Joined with player 1! ", 8);
+        ct[1] = b2;
+
+        if (playerIndex != 2 && ct[2] != b3) uiManager.displayDialogueForSeconds("Joined with player 2! ", 8);
+        ct[2] = b3;
+
+        if (playerIndex != 3 && ct[3] != b4) uiManager.displayDialogueForSeconds("Joined with player 3! ", 8);
+        ct[3] = b4;
 
         foreach(System.Tuple<int, int> n in neighbors)
         {
@@ -210,6 +221,16 @@ public class PlayerAction : MonoBehaviour
             b.highlightOff();
             b.setBuyable(false);
         }
+
+        if(uiManager.payEarnToggle.value == 0)
+        {
+            //earn money
+        }
+        else
+        {
+            //pay debt
+        }
+
         currTurnDone = true;
     }
 

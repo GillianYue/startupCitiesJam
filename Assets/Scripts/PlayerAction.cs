@@ -33,6 +33,10 @@ public class PlayerAction : MonoBehaviour
     Text sendPlacementHolder;
 
     public UIManager uiManager;
+    public EventController eventController;
+    public float eventTriggerRate;
+
+    int currNumContact;
 
     void Start()
     {
@@ -78,6 +82,7 @@ public class PlayerAction : MonoBehaviour
         for (int p = 0; p < numPlayers; p++)
         {
             blocks[players[p].myBlocks[0].Item1, players[p].myBlocks[0].Item2].setOwner(p);
+            blocks[players[p].myBlocks[0].Item1, players[p].myBlocks[0].Item2].clearFog();
         }
 
 
@@ -89,7 +94,7 @@ public class PlayerAction : MonoBehaviour
 
     void Update()
     {
-        if (!currTurnDone)
+        if (!currTurnDone && !uiManager.inUI)
         {
             (int,int) hov = getBlockByMousePosition(); //update curr selected block
             if (!currHoverBlock.Equals(hov))
@@ -99,8 +104,8 @@ public class PlayerAction : MonoBehaviour
 
                 currHoverBlock = hov;
                 if (hov.Item1 != -1) {
-                  //  uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost()
-                   //     +" coins", 9);
+                    uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost()
+                        +" coins", 9);
                     turnController.blockList[hov.Item1, hov.Item2].SelectOn();
                         }
             }
@@ -113,11 +118,20 @@ public class PlayerAction : MonoBehaviour
                     currHoverBlock.Item2, turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].getCurrCost()))
                 {
                     turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].highlightOff();
+                    turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].clearFog();
                     turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].setBuyable(false);
                     turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].setMatColorBasedOnOwner();
+                    uiManager.displayDialogueForSeconds("Purchased a block!", 5);
+
+                    if(Random.Range(0f, 1.0f) <= eventTriggerRate)
+                    {
+                        //trigger event
+                        eventController.pickRandomEvent();
+                    }
+
                 }
                 refreshCost();
-                uiManager.displayDialogueForSeconds("Purchased a block!", 5);
+                
             }
         }
     }
@@ -130,12 +144,14 @@ public class PlayerAction : MonoBehaviour
         currPlayer = players[playerIndex];
 
         System.Tuple<System.Tuple<bool, bool, bool, bool>, 
-            List<System.Tuple<int, int>>>  res = blockController.getNeighbors(players[playerIndex].myBlocks);
+            List<System.Tuple<int, int>>, int>  res = blockController.getNeighbors(players[playerIndex].myBlocks, playerIndex);
 
         System.Tuple<bool, bool, bool, bool> bs = res.Item1;
         bool b1 = bs.Item1, b2 = bs.Item2, b3 = bs.Item3, b4 = bs.Item4;
         List<System.Tuple<int, int>> neighbors = res.Item2;
 
+        int numTouch = res.Item3;
+        currNumContact = numTouch;
 
         bool[] ct = currPlayer.inContact;
 
@@ -159,7 +175,6 @@ public class PlayerAction : MonoBehaviour
 
         foreach (System.Tuple<int, int> n in neighbors)
         {
-
             
             int c = blockController.getBlockCost(n, currPlayer.returnStartingBlock(), currPlayer.myBlocks.Count);
             turnController.blockList[n.Item1, n.Item2].setCurrCost(c);
@@ -184,7 +199,10 @@ public class PlayerAction : MonoBehaviour
 
     public void sendMoneyButton()
     {
+        uiManager.inUI = true;
         SendMoneyPannel.SetActive(true);
+        SendMoneyPannel.GetComponent<Animator>().Play("bounceIn");
+
         for(int i = 0; i < 4; i++)
         {
             //Debug.Log("currPlayer.inContact["+i+"]"+ currPlayer.inContact[i]);
@@ -226,6 +244,7 @@ public class PlayerAction : MonoBehaviour
 
     public void closeSendMoneyButton()
     {
+        uiManager.inUI = false;
         for (int i = 0; i < 4; i++)
         {
               PlayerNeighbors[i].SetActive(false);
@@ -237,27 +256,37 @@ public class PlayerAction : MonoBehaviour
 
     public void endTurnButton()
     {
+        StartCoroutine(endTurn());
+    }
 
-        foreach(Block b in turnController.blockList)
-        {
-            b.highlightOff();
-            b.setBuyable(false);
-        }
-
+    private IEnumerator endTurn()
+    {
 
         if (uiManager.payEarnToggle.value == 0)
         {
             //earn money
-            players[turnController.getCurrTurnPlayer()].addCoins(20); //TODO
+
+            Player p = players[turnController.getCurrTurnPlayer()];
+
+            int profit = blockController.getEarn(p.myBlocks.Count,
+      currNumContact);
+
+            players[turnController.getCurrTurnPlayer()].addCoins(profit);
+
+            print("curr contact " + currNumContact + " " + profit);
         }
         else
         {
             //pay debt
             int c = players[turnController.getCurrTurnPlayer()].getCoins();
-            turnController.globalDebt -= c/2;
+            turnController.globalDebt -= c / 2;
             players[turnController.getCurrTurnPlayer()].setCoins(c / 2);
         }
 
+        turnController.setAllHighlightAndBuyableOff();
+
+
+        yield return new WaitForSeconds(0.2f);
 
         currTurnDone = true;
     }
@@ -281,42 +310,47 @@ public class PlayerAction : MonoBehaviour
     public void refreshCost()
     {
 
+        foreach (Block b in turnController.blockList)
+        {
+            b.highlightOff();
+            b.setBuyable(false);
+        }
+
         Player currPlayer = players[turnController.getCurrTurnPlayer()];
 
         System.Tuple<System.Tuple<bool, bool, bool, bool>,
-            List<System.Tuple<int, int>>> res = blockController.getNeighbors(currPlayer.myBlocks);
+            List<System.Tuple<int, int>>, int> res = blockController.getNeighbors(currPlayer.myBlocks, currPlayer.playerIndex);
 
         System.Tuple<bool, bool, bool, bool> bs = res.Item1;
         bool b1 = bs.Item1, b2 = bs.Item2, b3 = bs.Item3, b4 = bs.Item4;
         List<System.Tuple<int, int>> neighbors = res.Item2;
 
+        int numTouch = res.Item3;
+        currNumContact = numTouch;
+
         bool[] ct = currPlayer.inContact;
         int playerIndex = currPlayer.playerIndex;
 
-        //print(bs); print(currPlayer.inContact[0]+" #"+ currPlayer.inContact[1] + " #"+currPlayer.inContact[2] + "# "+ currPlayer.inContact[3]);
 
         if (playerIndex != 0 && ct[0] != b1) print("Player " + playerIndex + " joined with Player 0! ");
-            //uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 0! ", 8);
         ct[0] = b1;
 
         if (playerIndex != 1 && ct[1] != b2) print("Player " + playerIndex + " joined with Player 1! ");
-        //  uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 1! ", 8);
         ct[1] = b2;
 
         if (playerIndex != 2 && ct[2] != b3) print("Player " + playerIndex + " joined with Player 2! ");
-        // uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 2! ", 8);
         ct[2] = b3;
 
         if (playerIndex != 3 && ct[3] != b4) print("Player " + playerIndex + " joined with Player 3! ");
-        //  uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 3! ", 8);
         ct[3] = b4;
 
         currPlayer.inContact = ct;
 
+
         foreach (System.Tuple<int, int> n in neighbors)
         {
 
-
+            
             int c = blockController.getBlockCost(n, currPlayer.returnStartingBlock(), currPlayer.myBlocks.Count);
             turnController.blockList[n.Item1, n.Item2].setCurrCost(c);
 

@@ -34,7 +34,7 @@ public struct Block
     int highlightType; //0 is green, 1 is red
     int currCost;
 
-    GameObject costText;
+    //GameObject costText;
     bool buyable; //can be bought this turn
 
     Color[] playerColor;
@@ -62,10 +62,11 @@ public struct Block
         fogOn = true;
 
         highlightType = -1; //none
-        costText = cText;
+        //costText = cText;
 
         
-        playerColor = new Color[] { Color.white, Color.yellow, Color.green, Color.red, Color.blue};
+        playerColor = new Color[] { Color.white, Color.yellow, Color.green, Color.red, Color.blue, new Color(255/255f, 0, 255/255f)};
+        buyable = false;
     }
 
     public Vector3 getPos()
@@ -121,7 +122,7 @@ public struct Block
         {
             quad.GetComponent<HighlightableObject>().ConstantOn(Color.red);
             highlightType = 1;
-            costText.SetActive(true);
+          //  costText.SetActive(true);
         }
     }
     public void highLightHoverOff()
@@ -138,6 +139,9 @@ public struct Block
             case 1:
                 asNeighborNotBuyableOn();
                 break;
+            case 2:
+                highLightGetNeighbors();
+                break;
         }
 
         setMatColorBasedOnOwner();
@@ -147,14 +151,20 @@ public struct Block
     {
         quad.GetComponent<HighlightableObject>().ConstantOff();
         highlightType = -1;
-        costText.SetActive(false);
+       // costText.SetActive(false);
     }
 
     public void asNeighborBuyableOn()
     {
         quad.GetComponent<HighlightableObject>().ConstantOn(Color.green);
         highlightType = 0;
-        costText.SetActive(true);
+     //   costText.SetActive(true);
+    }
+
+    public void highLightGetNeighbors()
+    {
+        quad.GetComponent<HighlightableObject>().ConstantOn(playerColor[5]);
+        highlightType = 2;
     }
 
     public void SelectOn()
@@ -188,5 +198,10 @@ public struct Block
             quad.GetComponent<MeshRenderer>().material.color = TurnController.playerColors[owner];
             //Debug.Log("setting col to "+owner);
         }
+    }
+
+    public int getHighlightType()
+    {
+        return highlightType;
     }
 }

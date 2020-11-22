@@ -44,4 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myCenter: {x: 0, y: 0, z: 0}
+  coins: 200
   playerIndex: 0
+  inContact: 

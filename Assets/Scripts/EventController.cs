@@ -8,15 +8,18 @@ public class EventController : MonoBehaviour
     public PlayerAction playerAction;
 
     //more debt
+    public string[] moreDebtTitles;
     public string[] moreDebtTexts;
     public int[] addedDebt;
 
+    public string[] loseBlockTitles;
     public string[] loseBlockTexts;
 
-
+    public string[] blockPriceChangeTitles;
     public string[] blockPriceChangeTexts;
     public int[] blockPriceChange;
 
+    public string[] changeCoinsTitles;
     public string[] changeCoinsTexts;
     public int[] changeCoinsAmount;
 
@@ -46,7 +49,7 @@ public class EventController : MonoBehaviour
                 //
                 string tempTxt = ((tup.Item2 > 0) ? "increased" : "decreased");
 
-                uiManager.eventOut("", tup.Item1, "Global debt "+tempTxt+" by " + Mathf.Abs(tup.Item2) + " !");
+                uiManager.eventOut(moreDebtTitles[eventIndex], tup.Item1, "Global debt "+tempTxt+" by " + Mathf.Abs(tup.Item2) + " !");
                 turnController.globalDebt += tup.Item2;
                 break;
 
@@ -82,15 +85,16 @@ public class EventController : MonoBehaviour
                     }
                 }
                 if(res!="")
-                uiManager.eventOut("", tuple.Item1, res);
+                uiManager.eventOut(loseBlockTitles[eventIndex], tuple.Item1, res);
                 break;
             case 3:
                 eventIndex = UnityEngine.Random.Range(0, blockPriceChangeTexts.Length);
 
                 Tuple<string, int> tt = Toodear(blockController.blockOriginalCost, eventIndex);
-                string rr = "The base pricing of block(s) has changed by "+tt.Item2.ToString();
-                uiManager.eventOut("", tt.Item1, rr);
-                blockController.blockOriginalCost += tt.Item2;
+                string ud = tt.Item2 > blockController.blockOriginalCost ? "up." : "down.";
+                string rr = "The price of land has gone "+ ud;
+                uiManager.eventOut(blockPriceChangeTitles[eventIndex], tt.Item1, rr);
+                blockController.blockOriginalCost = tt.Item2;
 
                 break;
             case 4:
@@ -98,7 +102,7 @@ public class EventController : MonoBehaviour
                 Tuple<string, int, int> tu = loseCoins(eventIndex, turnController.getCurrTurnPlayer());
                 string temp = ((tu.Item3 > 0) ? "gained" : "lost");
                 string result = "You " + temp + " " + Mathf.Abs(tu.Item3) + " coins.";
-                uiManager.eventOut("", tu.Item1, result);
+                uiManager.eventOut(changeCoinsTitles[eventIndex], tu.Item1, result);
 
                 playerAction.players[turnController.getCurrTurnPlayer()].addCoins(tu.Item3);
 

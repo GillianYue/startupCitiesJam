@@ -46,10 +46,7 @@ public class TurnController : MonoBehaviour
             if (turn != 0) uiManager.profiles[(turn - 1) % playerAction.numPlayers].Play("playerProfileShrink");
             uiManager.displayDialogueForSeconds("Player " + playerIndex + "'s turn", 8);
             yield return playerAction.executeTurn(playerIndex);
-            yield return new WaitForSeconds(0.2f);
             globalDebt += debtRate;
-            uiManager.displayDialogueForSeconds("more debt has been added...", 3);
-            yield return new WaitForSeconds(1f);
 
             checkForResult();
            turn++;

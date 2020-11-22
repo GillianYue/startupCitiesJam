@@ -24,9 +24,11 @@ public class UIManager : MonoBehaviour
 
     public bool inUI;
 
+    public AudioSource loop;
+
     void Start()
     {
-        //startGameAnim();
+        startGameAnim();
         StartCoroutine(waitReady());
     }
 
@@ -44,7 +46,8 @@ public class UIManager : MonoBehaviour
         StartCoroutine(disableStartGamePanel());
     }
 
-    public IEnumerator disableStartGamePanel() {
+    public IEnumerator disableStartGamePanel()
+    {
         yield return new WaitForSeconds(27.3f);
         startGamePanel.SetActive(false);
         inUI = false;
@@ -53,15 +56,16 @@ public class UIManager : MonoBehaviour
 
     public IEnumerator displayTutorialPanel()
     {
+        loop.Play();
         inUI = true;
         tutorialPanel.SetActive(true);
         tutorialPanel.GetComponent<Animator>().Play("StartTutorial");
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(20f);
         tutorialPanel.SetActive(false);
         inUI = false;
     }
 
-    public void setInUI(bool b) { inUI = b;  }
+    public void setInUI(bool b) { inUI = b; }
     void Update()
     {
         if (myReady)
@@ -70,7 +74,7 @@ public class UIManager : MonoBehaviour
 
             for (int p = 0; p < playerAction.numPlayers; p++)
             {
-                playerCoinTexts[p].text = "coins: " + playerAction.players[p].getCoins().ToString();
+                playerCoinTexts[p].text = "" + playerAction.players[p].getCoins().ToString();
             }
 
         }
@@ -127,7 +131,7 @@ public class UIManager : MonoBehaviour
 
     IEnumerator eventIn()
     {
-        yield return new WaitForSeconds(6);
+        yield return new WaitForSeconds(8);
         eventPanel.GetComponent<Animator>().Play("CardIn");
         yield return new WaitForSeconds(1);
         eventPanel.SetActive(false);

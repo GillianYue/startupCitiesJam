@@ -40,7 +40,7 @@ public struct Block
     Color[] playerColor;
 
     public void initBlock(Vector3 position, bool upWall, bool downWall, bool leftWall, bool rightWall, float width, 
-        GameObject quadobj,GameObject colorObj,GameObject fogobj, GameObject cText)
+        GameObject quadobj,GameObject colorObj,GameObject fogobj)
     {
         pos = new Vector3(position.x, position.y, position.z);
         up = upWall;

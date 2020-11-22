@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MazeGeneration : MonoBehaviour
 {
-    public GameObject wall;
+    public GameObject[] wall;
 
     public GameObject nullParent;
 
@@ -15,7 +15,7 @@ public class MazeGeneration : MonoBehaviour
 
     public GameObject fogPrefab;
 
-    public GameObject costTextPrefab;
+    //public GameObject costTextPrefab;
 
     public float blockSize;
 
@@ -67,10 +67,13 @@ public class MazeGeneration : MonoBehaviour
                     item2++;
                     continue;
                 }
-                GameObject wallCol = Instantiate(wall);
+                GameObject wallCol = Instantiate(wall[UnityEngine.Random.Range(0,6)]);
                 wallCol.name = "colWall" + item1.ToString() + item2.ToString();
                 wallCol.transform.position = new Vector3(i, 0.5f, j);
-                wallCol.transform.localScale = new Vector3(0.1f, 1+Mathf.PerlinNoise(i, j), 1);
+                wallCol.transform.localScale = new Vector3(wallCol.transform.localScale.x, 
+                    wallCol.transform.localScale.y*Mathf.PerlinNoise(i, j)*2, 
+                    wallCol.transform.localScale.z);
+                wallCol.transform.rotation = Quaternion.Euler(0, -90, 0);
                 wallCol.transform.parent = nullParent.transform;
                 item2++;
             }
@@ -91,11 +94,13 @@ public class MazeGeneration : MonoBehaviour
                     item2++;
                     continue;
                 } 
-                GameObject wallRow = Instantiate(wall);
+                GameObject wallRow = Instantiate(wall[UnityEngine.Random.Range(0, 6)]);
                 wallRow.name = "rowWall" + item1.ToString() + item2.ToString();
                 wallRow.transform.position = new Vector3(j, 0.5f, i);
-                wallRow.transform.localScale = new Vector3(0.1f, 1+Mathf.PerlinNoise(j, i), 1);
-                wallRow.transform.rotation = Quaternion.Euler(0, 90, 0);
+                wallRow.transform.localScale = new Vector3(wallRow.transform.localScale.x,
+                    wallRow.transform.localScale.y*Mathf.PerlinNoise(j, i)*2,
+                    wallRow.transform.localScale.z);
+                wallRow.transform.rotation = Quaternion.Euler(0, 180, 0);
                 wallRow.transform.parent = nullParent.transform;
                 item2++;
             }
@@ -123,14 +128,14 @@ public class MazeGeneration : MonoBehaviour
                 fog.transform.parent = nullParent.transform;
                 fog.transform.position = new Vector3(position.x, fogHeight, position.z);
 
-                GameObject ctxt = Instantiate(costTextPrefab);
-                ctxt.transform.parent = nullParent.transform.Find("Canvas");
-                ctxt.transform.position = position + new Vector3(0, fogHeight, 0);
+                //GameObject ctxt = Instantiate(costTextPrefab);
+                //ctxt.transform.parent = nullParent.transform.Find("Canvas");
+                //ctxt.transform.position = position + new Vector3(0, fogHeight, 0);
 
                 blockList[i, j].initBlock(position,
                     rowWalls[j + 1, i].Item1, rowWalls[j, i].Item1, colWalls[i, j].Item1, colWalls[i + 1, j].Item1,
                     wallSize,
-                    quad,quadColor,fog, ctxt);
+                    quad,quadColor,fog);
                 
             }
         }

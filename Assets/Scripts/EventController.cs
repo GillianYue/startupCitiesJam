@@ -87,7 +87,7 @@ public class EventController : MonoBehaviour
                 if(res!="")
                 uiManager.eventOut(loseBlockTitles[eventIndex], tuple.Item1, res);
                 break;
-            case 3:
+            case 2:
                 eventIndex = UnityEngine.Random.Range(0, blockPriceChangeTexts.Length);
 
                 Tuple<string, int> tt = Toodear(blockController.blockOriginalCost, eventIndex);
@@ -97,7 +97,7 @@ public class EventController : MonoBehaviour
                 blockController.blockOriginalCost = tt.Item2;
 
                 break;
-            case 4:
+            case 3:
                 eventIndex = UnityEngine.Random.Range(0, changeCoinsTexts.Length);
                 Tuple<string, int, int> tu = loseCoins(eventIndex, turnController.getCurrTurnPlayer());
                 string temp = ((tu.Item3 > 0) ? "gained" : "lost");

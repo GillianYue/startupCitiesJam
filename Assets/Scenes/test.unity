@@ -514,7 +514,7 @@ MonoBehaviour:
   - {fileID: 1511618979}
   uiManager: {fileID: 157975065}
   eventController: {fileID: 1993848346}
-  eventTriggerRate: 0.8
+  eventTriggerRate: 0.5
 --- !u!114 &157975065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1233,6 +1233,11 @@ PrefabInstance:
       value: 'blahblahlablahlab
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820941584931533323, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -157.20001
       objectReference: {fileID: 0}
     - target: {fileID: 1820941585791525129, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
         type: 3}
@@ -2237,6 +2242,11 @@ PrefabInstance:
       value: 'blahblahlablahlab
 
 '
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820941584931533323, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -157.20001
       objectReference: {fileID: 0}
     - target: {fileID: 1820941585791525129, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
         type: 3}
@@ -8485,21 +8495,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1820941585791525128, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1820941585791525128, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 159
-      objectReference: {fileID: 0}
-    - target: {fileID: 1820941585791525128, guid: 4a4f174a8eef7a649bcc21b17f6516b6,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: -365.98956
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4a4f174a8eef7a649bcc21b17f6516b6, type: 3}

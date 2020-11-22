@@ -114,6 +114,11 @@ public class MazeGeneration : MonoBehaviour
                 quad.transform.parent = nullParent.transform;
                 quad.transform.position = position;
 
+                GameObject quadColor = Instantiate(quadPrefab);
+                quadColor.name = "quadColor" + i.ToString() + j.ToString();
+                quadColor.transform.parent = nullParent.transform;
+                quadColor.transform.position = new Vector3 (position.x,position.y+0.1f,position.z);
+
                 GameObject fog = Instantiate(fogPrefab);
                 fog.transform.parent = nullParent.transform;
                 fog.transform.position = new Vector3(position.x, fogHeight, position.z);
@@ -125,7 +130,7 @@ public class MazeGeneration : MonoBehaviour
                 blockList[i, j].initBlock(position,
                     rowWalls[j + 1, i].Item1, rowWalls[j, i].Item1, colWalls[i, j].Item1, colWalls[i + 1, j].Item1,
                     wallSize,
-                    quad,fog, ctxt);
+                    quad,quadColor,fog, ctxt);
                 
             }
         }

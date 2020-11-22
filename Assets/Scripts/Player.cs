@@ -81,4 +81,9 @@ public class Player : MonoBehaviour
     {
         return coins;
     }
+
+    public void addCoins(int c)
+    {
+        coins += c;
+    }
 }

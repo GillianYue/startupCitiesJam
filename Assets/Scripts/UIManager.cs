@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
     public PlayerAction playerAction;
     public Text[] playerCoinTexts;
 
-    private bool ready;
+    public bool myReady;
 
     public Text dialogueText;
 
@@ -25,13 +25,14 @@ public class UIManager : MonoBehaviour
 
     IEnumerator waitReady()
     {
-        yield return new WaitUntil(() => playerAction.ready);
-        ready = true;
+        yield return new WaitUntil(() => playerAction.ready());
+        myReady = true;
     }
+
 
     void Update()
     {
-        if (ready)
+        if (myReady)
         {
             debtText.text = "Debt Left: " + turnController.globalDebt.ToString();
 
@@ -55,7 +56,7 @@ public class UIManager : MonoBehaviour
     }
     public void displayDialogueForSeconds(string content, float s)
     {
-        StopAllCoroutines();
+        //StopAllCoroutines();
         StartCoroutine(displayForSeconds(dialogueText, s, content));
     }
 
@@ -64,5 +65,10 @@ public class UIManager : MonoBehaviour
         t.text = content;
         yield return new WaitForSeconds(s);
         t.text = "";
+    }
+
+    public void victory()
+    {
+
     }
 }

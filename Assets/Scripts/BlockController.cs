@@ -52,6 +52,7 @@ public class BlockController : MonoBehaviour
                 }
                 else
                 {
+                  //  Debug.Log("neighb"+blockList[row, col + 1].getOwner());
                     switch(blockList[row, col+1].getOwner())
                     {
                         case 0:
@@ -77,6 +78,7 @@ public class BlockController : MonoBehaviour
                 }
                 else
                 {
+                    //Debug.Log("neighb" + blockList[row, col - 1].getOwner());
                     switch (blockList[row , col-1].getOwner())
                     {
                         case 0:
@@ -102,6 +104,7 @@ public class BlockController : MonoBehaviour
                 }
                 else
                 {
+                    //Debug.Log("neighb" + blockList[row-1, col].getOwner());
                     switch (blockList[row-1 , col].getOwner())
                     {
                         case 0:
@@ -127,6 +130,8 @@ public class BlockController : MonoBehaviour
                 }
                 else
                 {
+
+                    //Debug.Log("neighb" + blockList[row+1, col].getOwner());
                     switch (blockList[row+1, col ].getOwner())
                     {
                         case 0:

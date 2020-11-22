@@ -25,6 +25,8 @@ public struct Block
 
     public GameObject quad;
 
+    public GameObject quadForColor;
+
     GameObject fog;
     bool fogOn;
 
@@ -35,8 +37,10 @@ public struct Block
     GameObject costText;
     bool buyable; //can be bought this turn
 
+    Color[] playerColor;
+
     public void initBlock(Vector3 position, bool upWall, bool downWall, bool leftWall, bool rightWall, float width, 
-        GameObject quadobj,GameObject fogobj, GameObject cText)
+        GameObject quadobj,GameObject colorObj,GameObject fogobj, GameObject cText)
     {
         pos = new Vector3(position.x, position.y, position.z);
         up = upWall;
@@ -52,11 +56,16 @@ public struct Block
 
         quad = quadobj;
 
+        quadForColor = colorObj;
+
         fog = fogobj;
         fogOn = true;
 
         highlightType = -1; //none
         costText = cText;
+
+        
+        playerColor = new Color[] { Color.white, Color.yellow, Color.green, Color.red, Color.blue};
     }
 
     public Vector3 getPos()
@@ -97,6 +106,7 @@ public struct Block
     public void setOwner(int own)
     {
         owner = own;
+        quadForColor.GetComponent<MeshRenderer>().material.color = playerColor[owner + 1];
     }
 
     public void clearFog()
@@ -176,7 +186,7 @@ public struct Block
         if (owner != -1 && owner < TurnController.playerColors.Length)
         {
             quad.GetComponent<MeshRenderer>().material.color = TurnController.playerColors[owner];
-            Debug.Log("setting col to "+owner);
+            //Debug.Log("setting col to "+owner);
         }
     }
 }

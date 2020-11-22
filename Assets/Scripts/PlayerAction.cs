@@ -20,7 +20,7 @@ public class PlayerAction : MonoBehaviour
     public BlockController blockController;
     public Camera mainCamera;
 
-    public bool ready;
+    private bool myReady;
 
     public GameObject SendMoneyPannel;
 
@@ -40,6 +40,11 @@ public class PlayerAction : MonoBehaviour
 
     }
 
+    public bool ready()
+    {
+        return myReady;
+    }
+
     public IEnumerator initializeAssign(Block[,] blocks)
     {
 
@@ -52,8 +57,8 @@ public class PlayerAction : MonoBehaviour
         int[] rc = new int[4], rr = new int[4];
         rc[0] = Random.Range(0, numCols / 2 ); rc[2] = Random.Range(numCols / 2, numCols);
         rc[1] = Random.Range(0, numCols / 2 ); rc[3] = Random.Range(numCols / 2, numCols);
-        rr[0] = Random.Range(0, numRows / 2 ); rr[2] = Random.Range(numRows / 2, numRows);
-        rr[1] = Random.Range(0, numRows / 2 ); rr[3] = Random.Range(numRows / 2, numRows);
+        rr[0] = Random.Range(0, numRows / 2 ); rr[2] = Random.Range(0, numRows / 2);
+        rr[1] = Random.Range(numRows / 2, numRows); rr[3] = Random.Range(numRows / 2, numRows);
 
         for (int p = 0; p < numPlayers; p++)
         {
@@ -75,10 +80,11 @@ public class PlayerAction : MonoBehaviour
             blocks[players[p].myBlocks[0].Item1, players[p].myBlocks[0].Item2].setOwner(p);
         }
 
-        print(numPlayers+" players instantiated");
+
 
         yield return new WaitUntil(() => players[numPlayers - 1]);
-        ready = true;
+        myReady = true;
+        print(numPlayers + " players instantiated");
     }
 
     void Update()
@@ -88,10 +94,13 @@ public class PlayerAction : MonoBehaviour
             (int,int) hov = getBlockByMousePosition(); //update curr selected block
             if (!currHoverBlock.Equals(hov))
             {
-                if (currHoverBlock.Item1 != -1) turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].highLightHoverOff();
+                if (currHoverBlock.Item1 != -1 && currHoverBlock.Item2 != -1) 
+                    turnController.blockList[currHoverBlock.Item1, currHoverBlock.Item2].highLightHoverOff();
+
                 currHoverBlock = hov;
                 if (hov.Item1 != -1) {
-                    uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost(), 9);
+                  //  uiManager.displayDialogueForSeconds("Cost for this block is " + turnController.blockList[hov.Item1, hov.Item2].getCurrCost()
+                   //     +" coins", 9);
                     turnController.blockList[hov.Item1, hov.Item2].SelectOn();
                         }
             }
@@ -127,21 +136,28 @@ public class PlayerAction : MonoBehaviour
         bool b1 = bs.Item1, b2 = bs.Item2, b3 = bs.Item3, b4 = bs.Item4;
         List<System.Tuple<int, int>> neighbors = res.Item2;
 
+
         bool[] ct = currPlayer.inContact;
 
-        if (playerIndex != 0 && ct[0] != b1) uiManager.displayDialogueForSeconds("Joined with player 0! ", 8);
+        if (playerIndex != 0 && ct[0] != b1) print("Player " + playerIndex + " joined with Player 0! ");
+        //uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 0! ", 8);
         ct[0] = b1;
 
-        if (playerIndex != 1 && ct[1] != b2) uiManager.displayDialogueForSeconds("Joined with player 1! ", 8);
+        if (playerIndex != 1 && ct[1] != b2) print("Player " + playerIndex + " joined with Player 1! ");
+        //  uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 1! ", 8);
         ct[1] = b2;
 
-        if (playerIndex != 2 && ct[2] != b3) uiManager.displayDialogueForSeconds("Joined with player 2! ", 8);
+        if (playerIndex != 2 && ct[2] != b3) print("Player " + playerIndex + " joined with Player 2! ");
+        // uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 2! ", 8);
         ct[2] = b3;
 
-        if (playerIndex != 3 && ct[3] != b4) uiManager.displayDialogueForSeconds("Joined with player 3! ", 8);
+        if (playerIndex != 3 && ct[3] != b4) print("Player " + playerIndex + " joined with Player 3! ");
+        //  uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 3! ", 8);
         ct[3] = b4;
 
-        foreach(System.Tuple<int, int> n in neighbors)
+        currPlayer.inContact = ct;
+
+        foreach (System.Tuple<int, int> n in neighbors)
         {
 
             
@@ -169,9 +185,10 @@ public class PlayerAction : MonoBehaviour
     public void sendMoneyButton()
     {
         SendMoneyPannel.SetActive(true);
-        for(int i = 0; i < currPlayer.inContact.Length; i++)
+        for(int i = 0; i < 4; i++)
         {
-            if (currPlayer.inContact[i])
+            //Debug.Log("currPlayer.inContact["+i+"]"+ currPlayer.inContact[i]);
+            if (currPlayer.inContact[i] && currPlayer.playerIndex!=i)
             {
                 PlayerNeighbors[i].SetActive(true);
             }
@@ -209,6 +226,11 @@ public class PlayerAction : MonoBehaviour
 
     public void closeSendMoneyButton()
     {
+        for (int i = 0; i < 4; i++)
+        {
+              PlayerNeighbors[i].SetActive(false);
+        }
+
         SendMoneyPannel.SetActive(false);
     }
 
@@ -222,14 +244,20 @@ public class PlayerAction : MonoBehaviour
             b.setBuyable(false);
         }
 
-        if(uiManager.payEarnToggle.value == 0)
+
+        if (uiManager.payEarnToggle.value == 0)
         {
             //earn money
+            players[turnController.getCurrTurnPlayer()].addCoins(20); //TODO
         }
         else
         {
             //pay debt
+            int c = players[turnController.getCurrTurnPlayer()].getCoins();
+            turnController.globalDebt -= c/2;
+            players[turnController.getCurrTurnPlayer()].setCoins(c / 2);
         }
+
 
         currTurnDone = true;
     }
@@ -262,8 +290,28 @@ public class PlayerAction : MonoBehaviour
         bool b1 = bs.Item1, b2 = bs.Item2, b3 = bs.Item3, b4 = bs.Item4;
         List<System.Tuple<int, int>> neighbors = res.Item2;
 
-        currPlayer.inContact[0] = b1; currPlayer.inContact[1] = b2;
-        currPlayer.inContact[2] = b3; currPlayer.inContact[3] = b4;
+        bool[] ct = currPlayer.inContact;
+        int playerIndex = currPlayer.playerIndex;
+
+        //print(bs); print(currPlayer.inContact[0]+" #"+ currPlayer.inContact[1] + " #"+currPlayer.inContact[2] + "# "+ currPlayer.inContact[3]);
+
+        if (playerIndex != 0 && ct[0] != b1) print("Player " + playerIndex + " joined with Player 0! ");
+            //uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 0! ", 8);
+        ct[0] = b1;
+
+        if (playerIndex != 1 && ct[1] != b2) print("Player " + playerIndex + " joined with Player 1! ");
+        //  uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 1! ", 8);
+        ct[1] = b2;
+
+        if (playerIndex != 2 && ct[2] != b3) print("Player " + playerIndex + " joined with Player 2! ");
+        // uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 2! ", 8);
+        ct[2] = b3;
+
+        if (playerIndex != 3 && ct[3] != b4) print("Player " + playerIndex + " joined with Player 3! ");
+        //  uiManager.displayDialogueForSeconds("Player " + playerIndex + "Joined with Player 3! ", 8);
+        ct[3] = b4;
+
+        currPlayer.inContact = ct;
 
         foreach (System.Tuple<int, int> n in neighbors)
         {
